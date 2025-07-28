@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Script GEE con selección en mapa</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -19,6 +19,7 @@
     #map {
       height: 400px;
       margin: 1em 0;
+      border: 1px solid #ccc;
     }
     textarea {
       width: 100%;
@@ -36,7 +37,7 @@
 </head>
 <body>
   <h1>Script GEE con punto desde mapa</h1>
-  <p>Selecciona un punto en el mapa para definir el centro del análisis. Luego genera el script de Google Earth Engine (1990–2024) listo para copiar.</p>
+  <p>Seleccioná un punto en el mapa para definir el centro del análisis. Luego generá el script de Google Earth Engine (1990–2024).</p>
 
   <div id="map"></div>
 
@@ -47,7 +48,7 @@
   <button onclick="copiarCodigo()">📋 Copiar al portapapeles</button>
 
   <div style="margin-top: 1em;">
-    ➡️ Luego de copiar el script, ve a <a href="https://code.earthengine.google.com/" target="_blank">Google Earth Engine</a> y pégalo allí.
+    ➡️ Luego de copiar el script, ve a <a href="https://code.earthengine.google.com/" target="_blank">Google Earth Engine</a> y pegalo allí para ejecutarlo.
   </div>
 
   <textarea id="codigo" readonly></textarea>
@@ -58,30 +59,26 @@
     crossorigin=""
   ></script>
   <script>
-    let centro = [-34.78015, -55.70237]; // valores por defecto
-    let marker;
+    let lat = -34.78015;
+    let lon = -55.70237;
 
-    const mapa = L.map('map').setView(centro, 13);
+    const map = L.map("map").setView([lat, lon], 13);
+    const marker = L.marker([lat, lon], { draggable: false }).addTo(map);
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
       attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
-      subdomains: 'abcd',
+      subdomains: "abcd",
       maxZoom: 19
-    }).addTo(mapa);
+    }).addTo(map);
 
-    marker = L.marker(centro).addTo(mapa);
-
-    mapa.on('click', function (e) {
-      centro = [e.latlng.lat, e.latlng.lng];
-      if (marker) mapa.removeLayer(marker);
-      marker = L.marker(centro).addTo(mapa);
+    map.on("click", function (e) {
+      lat = e.latlng.lat.toFixed(5);
+      lon = e.latlng.lng.toFixed(5);
+      marker.setLatLng(e.latlng);
     });
 
     async function generarCodigo() {
-      const lat = centro[0].toFixed(5);
-      const lon = centro[1].toFixed(5);
       const radio = parseInt(document.getElementById("radio").value);
-
       const raw = await fetch("https://raw.githubusercontent.com/gaitapi/linea-costa-solis-chico/main/linea_costa_solis_chico.js")
         .then(r => r.text());
 
