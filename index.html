@@ -1,62 +1,98 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Generador de Script GEE (1990–2024)</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha256-sA+4psg2WzC2EvmPxO06xG5DUrjrZ6R9fV8xvu4y6nM=" crossorigin=""/>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-o9N1j7kPprG1K9n1D4j1cQ5CZfNnGvC3MoM3Qkkj4v4=" crossorigin=""></script>
+  <meta charset="UTF-8" />
+  <title>Script GEE para líneas de costa (1990–2024)</title>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  ></script>
   <style>
-    body { font-family: sans-serif; margin: 2em; max-width: 800px; }
-    label { display: block; margin: 1em 0 0.5em; font-weight: bold; }
-    input { width: 100%; padding: 0.5em; font-size: 1em; }
-    textarea { width: 100%; height: 400px; margin-top: 1em; font-family: monospace; font-size: 0.9em; }
-    button { padding: 0.6em 1.2em; margin-top: 1em; cursor: pointer; }
-    .enlace { margin-top: 1em; font-size: 0.9em; }
+    body {
+      font-family: sans-serif;
+      margin: 2em;
+      max-width: 900px;
+    }
+    label {
+      display: block;
+      margin: 1em 0 0.5em;
+      font-weight: bold;
+    }
+    input {
+      width: 100%;
+      padding: 0.5em;
+      font-size: 1em;
+    }
+    textarea {
+      width: 100%;
+      height: 400px;
+      margin-top: 1em;
+      font-family: monospace;
+      font-size: 0.9em;
+    }
+    button {
+      padding: 0.6em 1.2em;
+      margin-top: 1em;
+      cursor: pointer;
+    }
+    #map {
+      height: 300px;
+      margin-top: 1em;
+      margin-bottom: 1em;
+      border: 1px solid #ccc;
+    }
+    .enlace {
+      margin-top: 1em;
+      font-size: 0.9em;
+    }
   </style>
 </head>
 <body>
-  <h1>Script GEE para análisis 1990–2024</h1>
-  <p>Este generador permite ajustar el punto central y radio de análisis para aplicar el script de extracción de líneas de costa desde 1990 a 2024 (Landsat y Sentinel-2).</p>
+  <h1>Script GEE para líneas de costa (1990–2024)</h1>
+  <p>
+    Selecciona un punto en el mapa o ingresa coordenadas para generar un script de Google Earth Engine adaptado a tu área de interés.
+  </p>
 
-  <label for="lon">Longitud del punto central:</label>
-  <input type="number" id="lon" value="-55.70237" step="any">
+  <label for="lon">Longitud:</label>
+  <input type="number" id="lon" value="-55.70237" step="any" />
 
-  <label for="lat">Latitud del punto central:</label>
-  <input type="number" id="lat" value="-34.78015" step="any">
+  <label for="lat">Latitud:</label>
+  <input type="number" id="lat" value="-34.78015" step="any" />
 
-  <label for="radio">Radio del círculo de análisis (en metros):</label>
-  <input type="number" id="radio" value="2000">
+  <label for="radio">Radio del análisis (en metros):</label>
+  <input type="number" id="radio" value="2000" />
 
-  <button onclick="generarCodigo()">Generar código</button>
+  <div id="map"></div>
+
+  <button onclick="generarCodigo()">🧠 Generar código</button>
   <button onclick="copiarCodigo()">📋 Copiar al portapapeles</button>
 
   <div class="enlace">
     ➡️ Luego de copiar el script, ve a <a href="https://code.earthengine.google.com/" target="_blank">Google Earth Engine</a> y pégalo allí para ejecutarlo.
   </div>
 
-  <textarea id="codigo"></textarea>
+  <textarea id="codigo">// Haz clic en “Generar código” para ver el resultado aquí...</textarea>
 
-  <div id="map" style="height: 400px; margin-top: 2em;"></div>
   <script>
-    var map = L.map('map').setView([-34.78015, -55.70237], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-
     async function generarCodigo() {
       const lon = parseFloat(document.getElementById("lon").value);
       const lat = parseFloat(document.getElementById("lat").value);
       const radio = parseInt(document.getElementById("radio").value);
-      const raw = await fetch("https://raw.githubusercontent.com/gaitapi/linea-costa-solis-chico/main/linea_costa_solis_chico.js")
-        .then(r => r.text());
+      const raw = await fetch(
+        "https://raw.githubusercontent.com/gaitapi/linea-costa-solis-chico/main/linea_costa_solis_chico.js"
+      ).then((r) => r.text());
 
-      const reemplazado = raw
-        .replace(/var centro = ee\.Geometry\.Point\([^\)]+\);/, `var centro = ee.Geometry.Point([${lon}, ${lat}]);`)
+      const actualizado = raw
+        .replace(
+          /var centro = ee\.Geometry\.Point\([^\)]+\);/,
+          `var centro = ee.Geometry.Point([${lon}, ${lat}]);`
+        )
         .replace(/var radio_m = \d+;/, `var radio_m = ${radio};`);
 
-      document.getElementById("codigo").value = reemplazado;
+      document.getElementById("codigo").value = actualizado;
     }
 
     function copiarCodigo() {
@@ -65,6 +101,24 @@
       area.setSelectionRange(0, 99999);
       document.execCommand("copy");
     }
+
+    // Inicializar mapa Leaflet
+    window.onload = function () {
+      const map = L.map("map").setView([-34.78015, -55.70237], 13);
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "&copy; OpenStreetMap contributors",
+        maxZoom: 19,
+      }).addTo(map);
+
+      const marker = L.marker([-34.78015, -55.70237], { draggable: true }).addTo(map);
+
+      marker.on("dragend", function (e) {
+        const coords = e.target.getLatLng();
+        document.getElementById("lat").value = coords.lat.toFixed(6);
+        document.getElementById("lon").value = coords.lng.toFixed(6);
+      });
+    };
   </script>
 </body>
 </html>
