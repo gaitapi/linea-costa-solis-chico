@@ -1,100 +1,16 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <title>Script GEE con selección en mapa</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha512-sA+RlC2V6pXqV+1qYklbHPWj38PXlNGpNZz8PrT6gA7frDZB8c5wts8nNVm1E5lLsN2sN1xr7nEtCG2cZ9dH9w=="
-    crossorigin=""
-  />
-  <style>
-    body {
-      font-family: sans-serif;
-      margin: 2em;
-      max-width: 800px;
-    }
-    #map {
-      height: 400px;
-      margin: 1em 0;
-      border: 1px solid #ccc;
-    }
-    textarea {
-      width: 100%;
-      height: 400px;
-      font-family: monospace;
-      font-size: 0.9em;
-      margin-top: 1em;
-    }
-    button {
-      padding: 0.6em 1.2em;
-      margin-top: 1em;
-      cursor: pointer;
-    }
-  </style>
-</head>
-<body>
-  <h1>Script GEE con punto desde mapa</h1>
-  <p>Selecciona un punto en el mapa para definir el centro del análisis. Luego genera el script de Google Earth Engine (1990–2024).</p>
+# Línea de costa - Solís Chico
 
-  <div id="map"></div>
+Este repositorio contiene el código fuente para generar un script dinámico de Google Earth Engine (GEE) que permite extraer líneas de costa desde imágenes satelitales (Landsat y Sentinel-2) para el período 1990–2024.
 
-  <label for="radio">Radio (metros):</label>
-  <input type="number" id="radio" value="2000" />
+La miniweb permite seleccionar un punto central sobre el mapa, ajustar el radio de análisis, y obtener el script personalizado listo para pegar en Google Earth Engine.
 
-  <button onclick="generarCodigo()">Generar código</button>
-  <button onclick="copiarCodigo()">📋 Copiar al portapapeles</button>
+🌐 Accedé a la miniweb:  
+[https://gaitapi.github.io/linea-costa-solis-chico](https://gaitapi.github.io/linea-costa-solis-chico)
 
-  <div style="margin-top: 1em;">
-    ➡️ Luego de copiar el script, ve a <a href="https://code.earthengine.google.com/" target="_blank">Google Earth Engine</a> y pégalo allí.
-  </div>
+🔧 Script base:  
+[linea_costa_solis_chico.js](https://github.com/gaitapi/linea-costa-solis-chico/blob/main/linea_costa_solis_chico.js)
 
-  <textarea id="codigo" readonly></textarea>
-
-  <script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha512-kZPmVvKZx6nZnm8XqCyF3oX+K1eZb0Nm3XQ6AA+K9a/mYvYUJ28j0mBq1ckrwnJNSy+Y/hP0GmklWZ8D7Ip9Lw=="
-    crossorigin=""
-  ></script>
-  <script>
-    let lat = -34.78015;
-    let lon = -55.70237;
-
-    const map = L.map("map").setView([lat, lon], 13);
-    const marker = L.marker([lat, lon], { draggable: false }).addTo(map);
-
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
-      attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
-      subdomains: "abcd",
-      maxZoom: 19
-    }).addTo(map);
-
-    map.on("click", function (e) {
-      lat = e.latlng.lat.toFixed(5);
-      lon = e.latlng.lng.toFixed(5);
-      marker.setLatLng(e.latlng);
-    });
-
-    async function generarCodigo() {
-      const radio = parseInt(document.getElementById("radio").value);
-      const raw = await fetch("https://raw.githubusercontent.com/gaitapi/linea-costa-solis-chico/main/linea_costa_solis_chico.js")
-        .then(r => r.text());
-
-      const reemplazado = raw
-        .replace(/var centro = ee\.Geometry\.Point\([^\)]+\);/, `var centro = ee.Geometry.Point([${lon}, ${lat}]);`)
-        .replace(/var radio_m = \d+;/, `var radio_m = ${radio};`);
-
-      document.getElementById("codigo").value = reemplazado;
-    }
-
-    function copiarCodigo() {
-      const area = document.getElementById("codigo");
-      area.select();
-      area.setSelectionRange(0, 99999);
-      document.execCommand("copy");
-    }
-  </script>
-</body>
-</html>
+📎 Generación del script:
+- Punto central: clic en el mapa.
+- Radio de análisis: ajustable en metros.
+- Generación de código con botón + copiar al portapapeles.
