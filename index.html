@@ -1,38 +1,84 @@
-# Línea de costa - Solís Chico
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Generador de Script GEE (1990–2024)</title>
+  <style>
+    body { font-family: sans-serif; margin: 2em; max-width: 900px; }
+    label { display: block; margin-top: 1em; font-weight: bold; }
+    input { width: 100%; padding: 0.5em; font-size: 1em; }
+    #map { height: 400px; margin: 1em 0; border: 1px solid #ccc; }
+    textarea { width: 100%; height: 400px; font-family: monospace; font-size: 0.9em; margin-top: 1em; }
+    button { padding: 0.6em 1.2em; margin-top: 1em; cursor: pointer; }
+    .enlace { margin-top: 1em; font-size: 0.95em; }
+  </style>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+</head>
+<body>
+  <h1>Script GEE para análisis 1990–2024</h1>
+  <p>Este generador permite seleccionar un punto y un radio de análisis para aplicar el script de extracción de líneas de costa desde 1990 a 2024 (Landsat y Sentinel-2).</p>
 
-Este repositorio contiene el código fuente para generar un script dinámico de Google Earth Engine (GEE) que permite extraer líneas de costa desde imágenes satelitales (Landsat y Sentinel-2) para el período 1990–2024.
+  <label for="lon">Longitud del punto central:</label>
+  <input type="number" id="lon" value="-55.70237" step="any">
 
----
+  <label for="lat">Latitud del punto central:</label>
+  <input type="number" id="lat" value="-34.78015" step="any">
 
-## 🌐 Accedé a la miniweb
+  <label for="radio">Radio del círculo de análisis (en metros):</label>
+  <input type="number" id="radio" value="2000">
 
-👉 [Ir al generador de script GEE](https://gaitapi.github.io/linea-costa-solis-chico)
+  <div id="map"></div>
 
-Desde la miniweb podrás:
+  <button onclick="generarCodigo()">Generar código</button>
+  <button onclick="copiarCodigo()">📋 Copiar al portapapeles</button>
 
-- Seleccionar un punto central sobre el mapa (con clic interactivo).
-- Ajustar el radio de análisis (en metros).
-- Generar el código completo listo para copiar y pegar en Google Earth Engine.
-- Acceder directamente a [code.earthengine.google.com](https://code.earthengine.google.com/) para ejecutar el script.
+  <div class="enlace">
+    ➡️ Luego de copiar el script, ve a <a href="https://code.earthengine.google.com/" target="_blank">Google Earth Engine</a> y pégalo allí para ejecutarlo.
+  </div>
 
----
+  <textarea id="codigo" readonly placeholder="Aquí aparecerá el script..."></textarea>
 
-## 🖼️ Vista previa
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    window.addEventListener('load', function() {
+      const mapa = L.map('map').setView([-34.78015, -55.70237], 13);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(mapa);
 
-![Vista de la miniweb](miniweb.png)
+      let marcador = L.marker([-34.78015, -55.70237], { draggable: false }).addTo(mapa);
 
-> La miniweb permite seleccionar visualmente el punto central del análisis con Leaflet y genera automáticamente el script GEE ajustado.
+      mapa.on('click', function(e) {
+        const { lat, lng } = e.latlng;
+        document.getElementById("lat").value = lat.toFixed(6);
+        document.getElementById("lon").value = lng.toFixed(6);
+        marcador.setLatLng([lat, lng]);
+        generarCodigo();
+      });
 
----
+      generarCodigo();
+    });
 
-## 📂 Archivos principales
+    async function generarCodigo() {
+      const lon = parseFloat(document.getElementById("lon").value);
+      const lat = parseFloat(document.getElementById("lat").value);
+      const radio = parseInt(document.getElementById("radio").value);
+      const raw = await fetch("https://raw.githubusercontent.com/gaitapi/linea-costa-solis-chico/main/linea_costa_solis_chico.js")
+        .then(r => r.text());
 
-- [`index.html`](index.html): código de la miniweb.
-- [`linea_costa_solis_chico.js`](linea_costa_solis_chico.js): script base de GEE.
-- [`miniweb.png`](miniweb.png): captura de pantalla ilustrativa.
+      const reemplazado = raw
+        .replace(/var centro = ee\.Geometry\.Point\([^\)]+\);/, `var centro = ee.Geometry.Point([${lon}, ${lat}]);`)
+        .replace(/var radio_m = \d+;/, `var radio_m = ${radio};`);
 
----
+      document.getElementById("codigo").value = reemplazado;
+    }
 
-## 📜 Licencia
-
-Distribuido bajo Licencia MIT.
+    function copiarCodigo() {
+      const area = document.getElementById("codigo");
+      area.select();
+      area.setSelectionRange(0, 99999);
+      document.execCommand("copy");
+    }
+  </script>
+</body>
+</html>
