@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Generador de Script GEE (1990–2024)</title>
+  <style>
+    body { font-family: sans-serif; margin: 2em auto; max-width: 800px; padding: 0 1em; }
+    label { display: block; margin: 1em 0 0.5em; font-weight: bold; }
+    input { width: 100%; padding: 0.5em; font-size: 1em; }
+    textarea { width: 100%; height: 500px; margin-top: 1em; font-family: monospace; font-size: 0.9em; white-space: pre; }
+    button { padding: 0.6em 1.2em; margin-top: 1em; cursor: pointer; font-size: 1em; }
+    .enlace { margin-top: 1.5em; font-size: 1em; }
+  </style>
+</head>
+<body>
+  <h1>Script GEE para análisis 1990–2024</h1>
+  <p>Este generador permite ajustar el punto central y radio de análisis para aplicar el script de extracción de líneas de costa desde 1990 a 2024 (Landsat y Sentinel-2).</p>
+
+  <label for="lon">Longitud del punto central:</label>
+  <input type="number" id="lon" value="-55.70237" step="any">
+
+  <label for="lat">Latitud del punto central:</label>
+  <input type="number" id="lat" value="-34.78015" step="any">
+
+  <label for="radio">Radio del círculo de análisis (en metros):</label>
+  <input type="number" id="radio" value="2000">
+
+  <button onclick="generarCodigo()">Generar código</button>
+  <button onclick="copiarCodigo()">📋 Copiar al portapapeles</button>
+
+  <div class="enlace">
+    ➡️ Luego de copiar el script, ve a <a href="https://code.earthengine.google.com/" target="_blank">Google Earth Engine</a> y pégalo allí para ejecutarlo.
+  </div>
+
+  <textarea id="codigo" readonly></textarea>
+
+  <script>
+    async function generarCodigo() {
+      const lon = parseFloat(document.getElementById("lon").value);
+      const lat = parseFloat(document.getElementById("lat").value);
+      const radio = parseInt(document.getElementById("radio").value);
+
+      try {
+        const raw = await fetch("https://raw.githubusercontent.com/gaitapi/linea-costa-solis-chico/main/linea_costa_solis_chico.js").then(r => r.text());
+
+        const reemplazado = raw
+          .replace(/var centro = ee\.Geometry\.Point\([^\)]+\);/, `var centro = ee.Geometry.Point([${lon}, ${lat}]);`)
+          .replace(/var radio_m = \d+;/, `var radio_m = ${radio};`);
+
+        document.getElementById("codigo").value = reemplazado;
+      } catch (e) {
+        document.getElementById("codigo").value = '❌ Error al cargar el script desde GitHub. Verifica la conexión o la URL.';
+      }
+    }
+
+    function copiarCodigo() {
+      const area = document.getElementById("codigo");
+      area.select();
+      document.execCommand("copy");
+    }
+  </script>
+</body>
+</html>
