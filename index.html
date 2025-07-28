@@ -3,24 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <title>Generador de Script GEE (1990–2024)</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-sA+4yC2yNKOcHu9uh2hXlNAdDqV5BMf7zy2Qot8urXU=" crossorigin=""/>
   <style>
-    body { font-family: sans-serif; margin: 2em auto; max-width: 800px; padding: 0 1em; }
+    body { font-family: sans-serif; margin: 2em; max-width: 900px; }
     label { display: block; margin: 1em 0 0.5em; font-weight: bold; }
     input { width: 100%; padding: 0.5em; font-size: 1em; }
-    textarea { width: 100%; height: 500px; margin-top: 1em; font-family: monospace; font-size: 0.9em; white-space: pre; }
-    button { padding: 0.6em 1.2em; margin-top: 1em; cursor: pointer; font-size: 1em; }
-    .enlace { margin-top: 1.5em; font-size: 1em; }
+    textarea { width: 100%; height: 400px; margin-top: 1em; font-family: monospace; font-size: 0.9em; }
+    button { padding: 0.6em 1.2em; margin-top: 1em; cursor: pointer; }
+    #map { height: 400px; margin-top: 1em; border: 1px solid #ccc; }
+    .enlace { margin-top: 1em; font-size: 0.9em; }
   </style>
 </head>
 <body>
+
   <h1>Script GEE para análisis 1990–2024</h1>
-  <p>Este generador permite ajustar el punto central y radio de análisis para aplicar el script de extracción de líneas de costa desde 1990 a 2024 (Landsat y Sentinel-2).</p>
+  <p>Haz clic en el mapa para seleccionar el centro del análisis. Ajusta el radio si lo deseas.</p>
 
-  <label for="lon">Longitud del punto central:</label>
-  <input type="number" id="lon" value="-55.70237" step="any">
+  <div id="map"></div>
 
-  <label for="lat">Latitud del punto central:</label>
-  <input type="number" id="lat" value="-34.78015" step="any">
+  <label for="lat">Latitud seleccionada:</label>
+  <input type="number" id="lat" step="any" value="-34.78015">
+
+  <label for="lon">Longitud seleccionada:</label>
+  <input type="number" id="lon" step="any" value="-55.70237">
 
   <label for="radio">Radio del círculo de análisis (en metros):</label>
   <input type="number" id="radio" value="2000">
@@ -32,32 +38,59 @@
     ➡️ Luego de copiar el script, ve a <a href="https://code.earthengine.google.com/" target="_blank">Google Earth Engine</a> y pégalo allí para ejecutarlo.
   </div>
 
-  <textarea id="codigo" readonly></textarea>
+  <textarea id="codigo"></textarea>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-o9N1j7kC3I1M2iIHn1ss9UvG9Zm6pIS1E68T0eG4vTk="
+    crossorigin=""></script>
 
   <script>
+    // Mapa
+    const map = L.map('map').setView([-34.78015, -55.70237], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    let marcador = L.marker([-34.78015, -55.70237], {draggable: true}).addTo(map);
+
+    function actualizarInputs(lat, lon) {
+      document.getElementById("lat").value = lat.toFixed(6);
+      document.getElementById("lon").value = lon.toFixed(6);
+    }
+
+    map.on('click', function(e) {
+      marcador.setLatLng(e.latlng);
+      actualizarInputs(e.latlng.lat, e.latlng.lng);
+    });
+
+    marcador.on('dragend', function(e) {
+      const pos = e.target.getLatLng();
+      actualizarInputs(pos.lat, pos.lng);
+    });
+
+    // Cargar código desde GitHub y modificarlo
     async function generarCodigo() {
-      const lon = parseFloat(document.getElementById("lon").value);
       const lat = parseFloat(document.getElementById("lat").value);
+      const lon = parseFloat(document.getElementById("lon").value);
       const radio = parseInt(document.getElementById("radio").value);
 
-      try {
-        const raw = await fetch("https://raw.githubusercontent.com/gaitapi/linea-costa-solis-chico/main/linea_costa_solis_chico.js").then(r => r.text());
+      const raw = await fetch("https://raw.githubusercontent.com/gaitapi/linea-costa-solis-chico/main/linea_costa_solis_chico.js")
+        .then(r => r.text());
 
-        const reemplazado = raw
-          .replace(/var centro = ee\.Geometry\.Point\([^\)]+\);/, `var centro = ee.Geometry.Point([${lon}, ${lat}]);`)
-          .replace(/var radio_m = \d+;/, `var radio_m = ${radio};`);
+      const reemplazado = raw
+        .replace(/var centro = ee\.Geometry\.Point\([^\)]+\);/, `var centro = ee.Geometry.Point([${lon}, ${lat}]);`)
+        .replace(/var radio_m = \d+;/, `var radio_m = ${radio};`);
 
-        document.getElementById("codigo").value = reemplazado;
-      } catch (e) {
-        document.getElementById("codigo").value = '❌ Error al cargar el script desde GitHub. Verifica la conexión o la URL.';
-      }
+      document.getElementById("codigo").value = reemplazado;
     }
 
     function copiarCodigo() {
       const area = document.getElementById("codigo");
       area.select();
+      area.setSelectionRange(0, 99999);
       document.execCommand("copy");
     }
   </script>
+
 </body>
 </html>
