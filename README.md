@@ -1,10 +1,10 @@
-# Línea de costa - Solís Chico
+# Línea de costa - ejemplo del arroyo Solís Chico
 
 Este repositorio contiene el código fuente para generar un script dinámico de Google Earth Engine (GEE) que permite extraer líneas de costa desde imágenes satelitales (Landsat y Sentinel-2) para el período 1990–2024.
 
 ---
 
-## 🌐 Accedé a la miniweb
+## 🌐 Accede aquí a la miniweb
 
 👉 [Ir al generador de script GEE](https://gaitapi.github.io/linea-costa-solis-chico)
 
