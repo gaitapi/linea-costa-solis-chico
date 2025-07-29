@@ -21,12 +21,10 @@ Desde la miniweb podrás:
 
 | | | |
 |--|--|--|
-| ![Captura 1](media/captura1.png) | ![Captura 2](media/captura2.png) | ![Captura 3](media/captura3.png) |
+| ![Captura 1](media/captura1.jpg) | ![Captura 2](media/captura2.png) | ![Captura 3](media/captura3.png) |
 | ![Captura 4](media/captura4.png) | ![Captura 5](media/captura5.png) | ![Captura 6](media/captura6.png) |
-| ![Figura adicional 1](media/cuatro.png) | ![Figura adicional 2](media/dd.png) | ![Figura adicional 3](media/dos.png) |
-| ![Figura adicional 4](media/otro.png) | ![Miniweb](media/miniweb.png) |  |
 
-> Las imágenes ilustran distintas etapas del flujo de trabajo, desde la selección del área de análisis hasta los resultados obtenidos en GEE.
+> Estas imágenes ilustran distintas etapas del flujo de trabajo: selección del área de análisis, generación del script en la miniweb y visualización de resultados en GEE.
 
 ---
 
