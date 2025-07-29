@@ -19,9 +19,14 @@ Desde la miniweb podrás:
 
 ## 🖼️ Vista previa
 
-![Vista de la miniweb](miniweb.png)
+| | | |
+|--|--|--|
+| ![Captura 1](media/captura1.png) | ![Captura 2](media/captura2.png) | ![Captura 3](media/captura3.png) |
+| ![Captura 4](media/captura4.png) | ![Captura 5](media/captura5.png) | ![Captura 6](media/captura6.png) |
+| ![Figura adicional 1](media/cuatro.png) | ![Figura adicional 2](media/dd.png) | ![Figura adicional 3](media/dos.png) |
+| ![Figura adicional 4](media/otro.png) | ![Miniweb](media/miniweb.png) |  |
 
-> La miniweb permite seleccionar visualmente el punto central del análisis con Leaflet y genera automáticamente el script GEE ajustado.
+> Las imágenes ilustran distintas etapas del flujo de trabajo, desde la selección del área de análisis hasta los resultados obtenidos en GEE.
 
 ---
 
@@ -29,7 +34,7 @@ Desde la miniweb podrás:
 
 - [`index.html`](index.html): código de la miniweb.
 - [`linea_costa_solis_chico.js`](linea_costa_solis_chico.js): script base de GEE.
-- [`miniweb.png`](miniweb.png): captura de pantalla ilustrativa.
+- [`miniweb.png`](media/miniweb.png): captura de pantalla ilustrativa.
 
 ---
 
