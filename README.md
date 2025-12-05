@@ -33,7 +33,7 @@ Desde la miniweb podrás:
 - [`index.html`](index.html): código de la miniweb.
 - [`linea_costa_solis_chico.js`](linea_costa_solis_chico.js): script base de GEE.
 - [`miniweb.png`](media/miniweb.png): captura de pantalla ilustrativa.
-
+Se ha añadido el archivo "estilodelinea.qml" para levantar con QGIS el archivo .json generado desde GEE (Gracias por la sugerencia Diego Acevedo!)
 ---
 
 ## 📜 Licencia
